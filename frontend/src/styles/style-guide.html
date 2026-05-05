@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Style Guide — realtime-debug-tool</title>
+  <link rel="stylesheet" href="./index.css" />
+  <style>
+    body { padding: 40px; max-width: 800px; }
+    section { margin-bottom: 48px; }
+    h1 { font-size: var(--text-xl); margin-bottom: var(--space-5); }
+    h2 { font-size: var(--text-lg); color: var(--color-text-secondary);
+         border-bottom: 1px solid var(--color-border); padding-bottom: var(--space-2);
+         margin-bottom: var(--space-4); }
+    .swatch-row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .swatch { width: 80px; text-align: center; }
+    .swatch-block { height: 48px; border-radius: var(--radius-md); margin-bottom: 6px; }
+    .swatch-label { font-size: var(--text-xs); color: var(--color-text-secondary); font-family: var(--font-mono); }
+    .btn-row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+    .btn { padding: 8px 16px; border-radius: var(--radius-md); border: none;
+           font-family: var(--font-sans); font-size: var(--text-sm);
+           cursor: pointer; font-weight: 500; }
+    .btn-primary { background: var(--color-info); color: #fff; }
+    .btn-danger  { background: var(--color-you);  color: #fff; }
+    .btn-ghost   { background: transparent; border: 1px solid var(--color-border-strong);
+                   color: var(--color-text-primary); }
+    .panel { background: var(--color-bg-surface); border: 1px solid var(--color-border);
+             border-radius: var(--radius-lg); padding: var(--space-5); }
+    .panel-elevated { background: var(--color-bg-elevated); border: 1px solid var(--color-border);
+                      border-radius: var(--radius-lg); padding: var(--space-5); }
+    .type-row { margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+
+  <h1>Design System — Style Guide</h1>
+  <p style="color:var(--color-text-secondary); margin-bottom:40px;">
+    Share this with M2. All colors, buttons, and panels use CSS variables from <code>index.css</code>.
+  </p>
+
+  <section>
+    <h2>Color meanings</h2>
+    <div class="swatch-row">
+      <div class="swatch">
+        <div class="swatch-block" style="background:var(--color-you)"></div>
+        <div class="swatch-label">--color-you<br/>Your cursor / your changes</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:var(--color-member2)"></div>
+        <div class="swatch-label">--color-member2<br/>M2 cursor / M2 changes</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:var(--color-info)"></div>
+        <div class="swatch-label">--color-info<br/>Info / links</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:var(--color-warning)"></div>
+        <div class="swatch-label">--color-warning<br/>Warnings</div>
+      </div>
+      <div class="swatch">
+        <div class="swatch-block" style="background:var(--color-bg-surface)"></div>
+        <div class="swatch-label">--color-bg-surface<br/>Panel background</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Buttons</h2>
+    <div class="btn-row">
+      <button class="btn btn-primary">Primary action</button>
+      <button class="btn btn-danger">Danger / delete</button>
+      <button class="btn btn-ghost">Ghost / secondary</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>Panels</h2>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;">
+      <div class="panel" style="flex:1;min-width:200px;">
+        <p style="color:var(--color-text-secondary);font-size:var(--text-sm);">Base panel</p>
+        <p>Use for sidebar, chat areas, main content sections.</p>
+      </div>
+      <div class="panel-elevated" style="flex:1;min-width:200px;">
+        <p style="color:var(--color-text-secondary);font-size:var(--text-sm);">Elevated panel</p>
+        <p>Use for modals, dropdowns, floating cards.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Typography</h2>
+    <div class="type-row"><span style="font-size:var(--text-xl);font-weight:600;">Page title — 22px</span></div>
+    <div class="type-row"><span style="font-size:var(--text-lg);">Section heading — 18px</span></div>
+    <div class="type-row"><span style="font-size:var(--text-md);">Body text — 15px</span></div>
+    <div class="type-row"><span style="font-size:var(--text-sm);color:var(--color-text-secondary);">Secondary / caption — 13px</span></div>
+    <div class="type-row"><code style="font-size:var(--text-sm);">Code snippet — JetBrains Mono 13px</code></div>
+  </section>
+
+</body>
+</html>
