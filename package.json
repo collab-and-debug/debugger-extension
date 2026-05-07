@@ -1,0 +1,52 @@
+{
+  "name": "collab-debug",
+  "displayName": "CollabDebug",
+  "description": "A VS Code extension for real-time collaborative debugging",
+  "version": "1.0.0",
+  "publisher": "lucky",
+  "author": {
+    "name": "Lucky"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eashwar/project-push"
+  },
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Debuggers"
+  ],
+  "activationEvents": [
+    "onCommand:collabDebug.startSession"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "collabDebug.startSession",
+        "title": "CollabDebug: Start Session"
+      },
+      {
+        "command": "collabDebug.stopSession",
+        "title": "CollabDebug: Stop Session"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^16.0.0",
+    "@types/vscode": "^1.74.0",
+    "@types/ws": "^8.5.4",
+    "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "ws": "^8.13.0"
+  }
+}
