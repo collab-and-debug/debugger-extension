@@ -1,86 +1,276 @@
-# CollabDebug — Collaborative Debugging Extension
+# Collab Debug
 
-A VS Code extension that lets multiple developers debug together in real time.
-Set breakpoints, inspect variables, and see your teammate's breakpoints live.
-
----
-
-## How to Install
-
-### Option 1 — Install from .vsix file
-1. Open VS Code
-2. Press `Ctrl + Shift + P`
-3. Type `Install from VSIX`
-4. Press Enter
-5. Select the `collab-debug-1.0.0.vsix` file
-6. Click Install
-7. Click Reload Window
-
-### Option 2 — Clone and run locally
-1. Clone the repository
-2. Open the folder in VS Code
-3. Run `npm install` in terminal
-4. Press `F5` to launch Extension Development Host
+A real-time collaborative debugging extension for Visual Studio Code that enables multiple developers to share debugging sessions, synchronize breakpoints, and capture variable states during runtime.
 
 ---
 
-## How to Start a Session
+# Features
 
-### Step 1 — Start the WebSocket server
-Open terminal in the project folder and run:
-node server.js
+## Real-Time Breakpoint Sync
+- Detects breakpoint add/remove events
+- Sends breakpoint updates through WebSocket
+- Supports collaborative debugging workflows
 
-You should see:
-🚀 WebSocket Server running on ws://localhost:3000
+## Variable State Capture
+- Captures local variables when debugger pauses
+- Sends variable states to connected users
+- Helps remote developers inspect runtime data
 
-### Step 2 — Launch the extension
-Press F5 in VS Code to open Extension Development Host.
-Look at the bottom status bar you should see:
-✓ CollabDebug: Connected ✓
+## WebSocket Communication
+- Real-time communication between extension and server
+- Lightweight collaborative session handling
 
-### Step 3 — Open a file and set breakpoints
-Open any JavaScript file and click on a line number to set a breakpoint.
-Your teammates will see the breakpoint appear as a colored dot in their editor!
-
-### Step 4 — Start debugging
-Press F5 to start debugging.
-When execution pauses at a breakpoint, variable state is automatically
-sent to the server and visible to all collaborators.
+## Multi-User Collaboration
+- Shared debugging environment
+- Live event synchronization
+- Session-based debugging support
 
 ---
 
-## Features
+# Tech Stack
 
-| Feature | Description |
-|---------|-------------|
-| Remote Breakpoints | See your teammate's breakpoints as colored dots |
-| Variable Sync | Variable state shared when debugger pauses |
-| Auto Reconnect | Automatically reconnects if server goes down |
-| Status Bar | Shows connection status at all times |
-| User Colors | Each user gets their own unique color |
+- TypeScript
+- Node.js
+- VS Code Extension API
+- WebSockets (`ws`)
+- JavaScript Debug Adapter Protocol
 
 ---
 
-## Requirements
+# Project Structure
 
-- VS Code 1.74.0 or higher
-- Node.js v16 or higher
-- npm
+```bash
+collab-debug/
+│
+├── src/
+│   ├── extension.ts
+│   ├── wsClient.ts
+│   ├── server.js
+│
+├── screenshots/
+│
+├── package.json
+├── tsconfig.json
+├── README.md
+```
 
 ---
 
-## How it Works
+# Installation
 
-User A sets breakpoint
-        ↓
-Extension sends breakpoint-added event to server
-        ↓
-Server broadcasts to all connected clients
-        ↓
-User B sees colored dot in their editor
+## Install using VSIX
+
+1. Open Visual Studio Code
+2. Go to Extensions
+3. Click the three dots (...) at top-right
+4. Select:
+   ```bash
+   Install from VSIX
+   ```
+5. Choose:
+   ```bash
+   collab-debug-1.0.0.vsix
+   ```
 
 ---
 
-## Author
+# Running the Project
 
-Eashu— Built as part of collaborative debugging project 2026
+## Step 1: Install Dependencies
+
+Open terminal inside project folder:
+
+```bash
+npm install
+```
+
+---
+
+## Step 2: Start WebSocket Server
+
+Run:
+
+```bash
+node src/server.js
+```
+
+Expected output:
+
+```bash
+✅ WebSocket server running on ws://localhost:3000
+```
+
+---
+
+## Step 3: Launch Extension
+
+Press:
+
+```bash
+F5
+```
+
+This opens:
+```bash
+Extension Development Host
+```
+
+---
+
+# How to Use
+
+## Breakpoint Synchronization
+
+1. Open any `.js` or `.py` file
+2. Click beside line number to add breakpoint
+3. Breakpoint event is sent to server
+4. Server logs breakpoint activity
+
+Example output:
+
+```json
+{
+  "type": "breakpoint",
+  "action": "add",
+  "file": "test.js",
+  "line": 4
+}
+```
+
+---
+
+## Variable State Capture
+
+1. Start debugging
+2. Execution pauses on breakpoint
+3. Extension captures local variables
+4. Variable state is sent to server
+
+Example output:
+
+```json
+{
+  "type": "variable-state",
+  "variables": [
+    {
+      "name": "a",
+      "value": "10"
+    },
+    {
+      "name": "b",
+      "value": "20"
+    }
+  ]
+}
+```
+
+---
+
+# Commands
+
+| Command | Description |
+|---|---|
+| Connect Session | Connects extension to collaboration server |
+| Share Breakpoints | Synchronizes breakpoint events |
+| Capture Variables | Sends variable state on debugger pause |
+
+---
+
+# Screenshots
+
+## Breakpoint Synchronization
+
+Add screenshot here:
+
+```md
+![Breakpoint Sync](./screenshots/breakpoint-sync.png)
+```
+
+---
+
+## Variable State Capture
+
+Add screenshot here:
+
+```md
+![Variable Capture](./screenshots/variable-capture.png)
+```
+
+---
+
+# WebSocket Events
+
+## Breakpoint Add
+
+```json
+{
+  "type": "breakpoint",
+  "action": "add"
+}
+```
+
+## Breakpoint Remove
+
+```json
+{
+  "type": "breakpoint",
+  "action": "remove"
+}
+```
+
+## Variable State
+
+```json
+{
+  "type": "variable-state"
+}
+```
+
+---
+
+# Future Improvements
+
+- Live breakpoint rendering for all users
+- Shared call stack visualization
+- Real-time console synchronization
+- Remote session joining
+- Authentication support
+- Session persistence
+
+---
+
+# Repository
+
+Repository URL:
+
+```bash
+https://github.com/collab-and-debug/debugger-extension
+```
+
+---
+
+# Author
+
+Eashwar Polishetti
+
+GitHub:
+```bash
+https://github.com/eashwarpolishetti
+```
+
+---
+
+# License
+
+MIT License
+
+---
+
+# Release
+
+Current Version:
+```bash
+v1.0
+```
+
+VSIX package available in GitHub Releases.
