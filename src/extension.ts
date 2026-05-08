@@ -69,9 +69,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
             sendToServer({
                 type: 'breakpoint',
-                action: 'add',
-                file,
-                line,
+                payload: { file, line, action: 'add' },
                 userId: session.userId,
                 userName: session.userName,
                 userColor: session.userColor
@@ -88,10 +86,10 @@ export async function activate(context: vscode.ExtensionContext) {
 
             sendToServer({
                 type: 'breakpoint',
-                action: 'remove',
-                file,
-                line,
-                userId: session.userId
+                payload: { file, line, action: 'remove' },
+                userId: session.userId,
+                userName: session.userName,
+                userColor: session.userColor
             });
         });
     }));
@@ -194,11 +192,18 @@ async function captureAndSendVariables(debugSession: vscode.DebugSession, thread
             variablesReference: localScope.variablesReference
         });
 
+        const variables = variablesResponse.variables || [];
+        const scopesObject: Record<string, any> = {};
+        variables.forEach((v: any) => {
+            scopesObject[v.name] = v.value;
+        });
+
         sendToServer({
             type: 'variable-state',
-            variables: variablesResponse.variables || [],
+            payload: { scopes: { local: scopesObject } },
             userId: collabSession.userId,
             userName: collabSession.userName,
+            userColor: collabSession.userColor,
             sessionId: collabSession.sessionId
         });
     } catch (err) {
