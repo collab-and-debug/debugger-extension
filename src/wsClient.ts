@@ -148,9 +148,11 @@ function connect() {
 
 function buildSessionUrl(session: CollabSessionInfo) {
     const base = session.serverUrl.replace(/\/$/, '');
-    const url = new URL(`${base}/session/${encodeURIComponent(session.sessionId)}`);
+    const url = new URL(base);
+    url.searchParams.set('sessionId', session.sessionId);
     url.searchParams.set('userId', session.userId);
     url.searchParams.set('userName', session.userName);
+    url.searchParams.set('userColor', session.userColor);
     return url.toString();
 }
 
