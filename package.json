@@ -3,9 +3,9 @@
   "displayName": "CollabDebug",
   "description": "A VS Code extension for real-time collaborative debugging",
   "version": "1.0.0",
-  "publisher": "lucky",
+  "publisher": "aishwaryaKurakula",
   "author": {
-    "name": "Lucky"
+    "name": "aishwaryaKurakula"
   },
   "license": "MIT",
   "repository": {
