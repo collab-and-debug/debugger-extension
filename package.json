@@ -9,9 +9,9 @@
   },
   "license": "MIT",
   "repository": {
-    "type": "git",
-    "url": "https://github.com/eashwar/project-push.git"
-  },
+  "type": "git",
+  "url": "https://github.com/collab-and-debug/debugger-extension.git"
+}
   "engines": {
     "vscode": "^1.74.0"
   },
