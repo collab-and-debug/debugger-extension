@@ -2,19 +2,19 @@
   "name": "collab-debug",
   "displayName": "CollabDebug",
   "description": "A VS Code extension for real-time collaborative debugging",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "publisher": "aishwaryakurakula",
-   "icon": "images/logo.jpg",
+  "icon": "images/logo.jpg",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
   "author": {
     "name": "Aishwarya Kurakula"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/eashwar/project-push.git"
-  },
-  "engines": {
-    "vscode": "^1.74.0"
+    "url": "https://github.com/collab-and-debug/debugger-extension.git"
   },
   "categories": [
     "Debuggers"
