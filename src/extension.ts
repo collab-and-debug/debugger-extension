@@ -82,7 +82,8 @@ export async function activate(context: vscode.ExtensionContext) {
             startCollabSession(session);
 
             // 🔥 AUTO OPEN DASHBOARD — true flag prevents VS Code stripping the # fragment
-const dashboardUrl = `https://debugger-dashboard-m2xd.vercel.app/session/${sessionId}`;
+const dashboardUrl = `https://collab-debug.vercel.app/session/${sessionId}`;
+
             vscode.env.openExternal(vscode.Uri.parse(dashboardUrl, true));
 
             vscode.window.showInformationMessage(
@@ -159,7 +160,8 @@ const dashboardUrl = `https://debugger-dashboard-m2xd.vercel.app/session/${sessi
             startCollabSession(session);
 
             // 🔥 AUTO OPEN DASHBOARD ON JOIN — true flag prevents VS Code stripping the # fragment
-            const dashboardUrl = `https://debugger-dashboard-m2xd.vercel.app/session/${sessionId}`;
+            const dashboardUrl = `https://collab-debug.vercel.app/session/${sessionId}`;
+Then:
             vscode.env.openExternal(vscode.Uri.parse(dashboardUrl, true));
 
             vscode.window.showInformationMessage(`Joined as ${userName}`);
