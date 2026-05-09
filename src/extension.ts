@@ -81,11 +81,10 @@ export async function activate(context: vscode.ExtensionContext) {
 
             startCollabSession(session);
 
-            // 🔥 AUTO OPEN DASHBOARD
-            const dashboardUrl = `https://collab-debug.vercel.app/#/session/${sessionId}`;
-            vscode.env.openExternal(vscode.Uri.parse(dashboardUrl));
+            // 🔥 AUTO OPEN DASHBOARD — true flag prevents VS Code stripping the # fragment
+const dashboardUrl = `https://debugger-dashboard-m2xd.vercel.app/session/${sessionId}`;
+            vscode.env.openExternal(vscode.Uri.parse(dashboardUrl, true));
 
-            // Copy ID UI
             vscode.window.showInformationMessage(
                 `Session started! ID: ${sessionId}`,
                 'Copy ID'
@@ -159,9 +158,9 @@ export async function activate(context: vscode.ExtensionContext) {
 
             startCollabSession(session);
 
-            // 🔥 AUTO OPEN DASHBOARD ON JOIN
-            const dashboardUrl = `https://collab-debug.vercel.app/#/session/${sessionId}`;
-            vscode.env.openExternal(vscode.Uri.parse(dashboardUrl));
+            // 🔥 AUTO OPEN DASHBOARD ON JOIN — true flag prevents VS Code stripping the # fragment
+            const dashboardUrl = `https://debugger-dashboard-m2xd.vercel.app/session/${sessionId}`;
+            vscode.env.openExternal(vscode.Uri.parse(dashboardUrl, true));
 
             vscode.window.showInformationMessage(`Joined as ${userName}`);
         })
@@ -178,7 +177,7 @@ export async function activate(context: vscode.ExtensionContext) {
     );
 
     // ─────────────────────────────────────────────
-    // BREAKPOINT + VARIABLE LOGIC (UNCHANGED)
+    // BREAKPOINT + VARIABLE LOGIC
     // ─────────────────────────────────────────────
     context.subscriptions.push(
         vscode.debug.onDidChangeBreakpoints((event) => {

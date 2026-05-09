@@ -2,7 +2,7 @@
   "name": "collab-debug",
   "displayName": "CollabDebug",
   "description": "A VS Code extension for real-time collaborative debugging",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "publisher": "aishwaryakurakula",
   "icon": "images/logo.jpg",
   "engines": {
