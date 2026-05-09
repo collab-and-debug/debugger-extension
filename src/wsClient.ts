@@ -6,12 +6,12 @@ import WebSocket = require('ws');
 export interface CollabSessionInfo {
     serverUrl: string;
     sessionId: string;
-    userId: string;
-    userName: string;
+    userId:    string;
+    userName:  string;
     userColor: string;
 }
 
-let wsClient: WebSocket | undefined;
+let wsClient:       WebSocket | undefined;
 let reconnectTimer: NodeJS.Timeout | undefined;
 let currentSession: CollabSessionInfo | undefined;
 
@@ -30,12 +30,11 @@ export function getCurrentSession() {
     return currentSession;
 }
 
-export function sendToServer(payload: object) {
+export function sendToServer(payload: object): boolean {
     if (wsClient?.readyState === WebSocket.OPEN) {
         wsClient.send(JSON.stringify(payload));
         return true;
     }
-
     return false;
 }
 
@@ -54,7 +53,8 @@ export function stopCollabSession() {
 
     wsClient?.close();
     wsClient = undefined;
-    statusBarItem.text = '$(circle-slash) CollabDebug: Not connected';
+
+    statusBarItem.text            = '$(circle-slash) CollabDebug: Not connected';
     statusBarItem.backgroundColor = undefined;
     statusBarItem.show();
 }
@@ -71,32 +71,29 @@ function reconnectNow() {
 }
 
 function connect() {
-    if (!currentSession) {
-        return;
-    }
+    if (!currentSession) { return; }
 
     const url = buildSessionUrl(currentSession);
-    console.log('[CollabDebug] Connecting to WebSocket server:', url);
+    console.log('[CollabDebug] Connecting to:', url);
 
-    statusBarItem.text = '$(sync~spin) CollabDebug: Connecting...';
+    statusBarItem.text            = '$(sync~spin) CollabDebug: Connecting...';
     statusBarItem.backgroundColor = undefined;
     statusBarItem.show();
 
     wsClient = new WebSocket(url);
 
     wsClient.on('open', () => {
-        if (!currentSession) {
-            return;
-        }
+        if (!currentSession) { return; }
 
-        console.log('[CollabDebug] Connected to WebSocket server');
-        statusBarItem.text = '$(check) CollabDebug: Connected';
+        console.log('[CollabDebug] Connected');
+        statusBarItem.text            = '$(check) CollabDebug: Connected';
         statusBarItem.backgroundColor = undefined;
         statusBarItem.show();
 
+        // Initial keepalive ping
         sendToServer({
-            type: 'ping',
-            userId: currentSession.userId,
+            type:     'ping',
+            userId:   currentSession.userId,
             userName: currentSession.userName
         });
     });
@@ -105,10 +102,28 @@ function connect() {
         try {
             const message = JSON.parse(data.toString());
 
-            if (isOwnMessage(message)) {
-                return;
+            // Ignore messages we sent ourselves
+            if (isOwnMessage(message)) { return; }
+
+            // Handle remote breakpoint events — render decorations in editor
+            if (message.type === 'BREAKPOINT_HIT') {
+                addRemoteBreakpoint(
+                    message.userId,
+                    message.payload?.file,
+                    message.payload?.line,
+                    message.userColor
+                );
             }
 
+            if (message.type === 'BREAKPOINT_REMOVED') {
+                removeRemoteBreakpoint(
+                    message.userId,
+                    message.payload?.file,
+                    message.payload?.line
+                );
+            }
+
+            // Legacy event name support (in case server sends older format)
             if (message.type === 'breakpoint' && message.action === 'add') {
                 addRemoteBreakpoint(message.userId, message.file, message.line, message.userColor);
             }
@@ -117,13 +132,6 @@ function connect() {
                 removeRemoteBreakpoint(message.userId, message.file, message.line);
             }
 
-            if (message.type === 'breakpoint-added') {
-                addRemoteBreakpoint(message.userId, message.filePath, message.line, message.userColor);
-            }
-
-            if (message.type === 'breakpoint-removed') {
-                removeRemoteBreakpoint(message.userId, message.filePath, message.line);
-            }
         } catch (err) {
             console.error('[CollabDebug] Error parsing message:', err);
         }
@@ -131,31 +139,41 @@ function connect() {
 
     wsClient.on('error', (err: Error) => {
         console.error('[CollabDebug] WebSocket error:', err.message);
+        statusBarItem.text = '$(warning) CollabDebug: Error';
+        statusBarItem.show();
     });
 
     wsClient.on('close', () => {
-        if (!currentSession) {
-            return;
-        }
+        if (!currentSession) { return; }
 
-        console.log('[CollabDebug] Disconnected from server. Retrying in 3 seconds...');
+        console.log('[CollabDebug] Disconnected. Retrying in 3s...');
         statusBarItem.text = '$(warning) CollabDebug: Disconnected';
         statusBarItem.show();
 
+        // Auto-reconnect after 3 seconds
         reconnectTimer = setTimeout(connect, 3000);
     });
 }
 
-function buildSessionUrl(session: CollabSessionInfo) {
+// Builds the WebSocket URL with session params as query string.
+// Uses string concatenation instead of new URL() to avoid issues
+// with wss:// protocol parsing on some Node versions.
+function buildSessionUrl(session: CollabSessionInfo): string {
     const base = session.serverUrl.replace(/\/$/, '');
-    const url = new URL(base);
-    url.searchParams.set('sessionId', session.sessionId);
-    url.searchParams.set('userId', session.userId);
-    url.searchParams.set('userName', session.userName);
-    url.searchParams.set('userColor', session.userColor);
-    return url.toString();
+
+    const params = new URLSearchParams({
+        sessionId: session.sessionId,
+        userId:    session.userId,
+        userName:  session.userName,
+        userColor: session.userColor
+    });
+
+    return `${base}/?${params.toString()}`;
 }
 
-function isOwnMessage(message: any) {
-    return Boolean(currentSession?.userId && message?.userId === currentSession.userId);
+function isOwnMessage(message: any): boolean {
+    return Boolean(
+        currentSession?.userId &&
+        message?.userId === currentSession.userId
+    );
 }
