@@ -20,6 +20,7 @@
   ],
   "activationEvents": [
     "onCommand:collabDebug.startSession",
+    "onCommand:collabDebug.joinSession",
     "onCommand:collabDebug.stopSession"
   ],
   "main": "./out/extension.js",
@@ -28,6 +29,10 @@
       {
         "command": "collabDebug.startSession",
         "title": "CollabDebug: Start Session"
+      },
+      {
+        "command": "collabDebug.joinSession",
+        "title": "CollabDebug: Join Session"
       },
       {
         "command": "collabDebug.stopSession",
