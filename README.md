@@ -1,276 +1,190 @@
-# Collab Debug
+# CollabDebug (collab-debug)
 
-A real-time collaborative debugging extension for Visual Studio Code that enables multiple developers to share debugging sessions, synchronize breakpoints, and capture variable states during runtime.
-
----
-
-# Features
-
-## Real-Time Breakpoint Sync
-- Detects breakpoint add/remove events
-- Sends breakpoint updates through WebSocket
-- Supports collaborative debugging workflows
-
-## Variable State Capture
-- Captures local variables when debugger pauses
-- Sends variable states to connected users
-- Helps remote developers inspect runtime data
-
-## WebSocket Communication
-- Real-time communication between extension and server
-- Lightweight collaborative session handling
-
-## Multi-User Collaboration
-- Shared debugging environment
-- Live event synchronization
-- Session-based debugging support
+A VS Code extension for **real-time collaborative debugging**. Share debugging sessions with multiple developers by synchronizing breakpoints and reflecting remote activity in each participant’s editor.
 
 ---
 
-# Tech Stack
+## What it does
 
-- TypeScript
-- Node.js
-- VS Code Extension API
-- WebSockets (`ws`)
-- JavaScript Debug Adapter Protocol
+- **Start or join a collaboration session** via commands in VS Code.
+- **Synchronize breakpoints** across all connected participants.
+- **Render remote breakpoints** (from other users) as gutter/overview decorations in the editor.
+- Uses a **WebSocket connection** to receive remote events.
+
+> Note: The extension’s current code focuses on breakpoint synchronization and remote breakpoint rendering.
 
 ---
 
-# Project Structure
+## Features
+
+### Breakpoint synchronization
+When a user adds/removes a VS Code breakpoint, the extension sends breakpoint events to the collaboration server. Remote breakpoint events are then rendered for other users.
+
+### Multi-user awareness
+Each participant gets a generated `userId` and a color (used for UI decorations).
+
+### Auto-reconnect
+If the WebSocket disconnects, the extension retries connection automatically after a short delay.
+
+---
+
+## Extension commands
+
+These are contributed by `package.json`:
+
+- **CollabDebug: Start Session** (`collabDebug.startSession`)
+  - Prompts for the **Server URL** and your **name**
+  - Calls `POST /session/create`
+  - Opens the public dashboard URL in your browser (based on the session id)
+
+- **CollabDebug: Join Session** (`collabDebug.joinSession`)
+  - Prompts for the **Server URL**, **Session ID**, and your **name**
+  - Calls `POST /session/join`
+  - Opens the public dashboard URL in your browser
+
+- **CollabDebug: Stop Session** (`collabDebug.stopSession`)
+  - Closes the WebSocket connection and clears local session state
+
+Default keybindings (from `package.json`):
+
+- Start: `Ctrl+Alt+C` (macOS: `Cmd+Alt+C`)
+- Join: `Ctrl+Alt+J` (macOS: `Cmd+Alt+J`)
+- Stop: `Ctrl+Alt+X` (macOS: `Cmd+Alt+X`)
+
+---
+
+## Prerequisites
+
+- VS Code **^1.74.0**
+- A running collaboration server (this repo’s `server.js`/backend or your deployed equivalent)
+- A reachable WebSocket endpoint
+
+---
+
+## Setup & run (local development)
+
+### 1) Install extension dependencies
 
 ```bash
-collab-debug/
-│
-├── src/
-│   ├── extension.ts
-│   ├── wsClient.ts
-│   ├── server.js
-│
-├── screenshots/
-│
-├── package.json
-├── tsconfig.json
-├── README.md
-```
-
----
-
-# Installation
-
-## Install using VSIX
-
-1. Open Visual Studio Code
-2. Go to Extensions
-3. Click the three dots (...) at top-right
-4. Select:
-   ```bash
-   Install from VSIX
-   ```
-5. Choose:
-   ```bash
-   collab-debug-1.0.0.vsix
-   ```
-
----
-
-# Running the Project
-
-## Step 1: Install Dependencies
-
-Open terminal inside project folder:
-
-```bash
+cd debugger-extension
 npm install
 ```
 
----
+### 2) Launch the extension in VS Code
 
-## Step 2: Start WebSocket Server
-
-Run:
-
-```bash
-node src/server.js
-```
-
-Expected output:
-
-```bash
-✅ WebSocket server running on ws://localhost:3000
-```
+- Press **F5** to open an Extension Development Host window.
 
 ---
 
-## Step 3: Launch Extension
+## Connect to the server
 
-Press:
+### Server URL
 
-```bash
-F5
-```
+The extension expects you to enter a **WebSocket server URL** (wss/ws). Internally it also derives an HTTP URL for REST calls.
 
-This opens:
-```bash
-Extension Development Host
-```
+Example:
 
----
+- `wss://debugger-server.onrender.com` (default in the extension)
+- `ws://localhost:3000` (typical local server)
 
-# How to Use
+### Dashboard
 
-## Breakpoint Synchronization
+On **start** and **join**, the extension opens:
 
-1. Open any `.js` or `.py` file
-2. Click beside line number to add breakpoint
-3. Breakpoint event is sent to server
-4. Server logs breakpoint activity
-
-Example output:
-
-```json
-{
-  "type": "breakpoint",
-  "action": "add",
-  "file": "test.js",
-  "line": 4
-}
-```
+- `https://collab-debug.vercel.app/#/session/<sessionId>`
 
 ---
 
-## Variable State Capture
+## How the server APIs are used
 
-1. Start debugging
-2. Execution pauses on breakpoint
-3. Extension captures local variables
-4. Variable state is sent to server
+The extension calls the backend using HTTP derived from the provided server URL.
 
-Example output:
+### Create session
+- **POST** `/session/create`
+- Body: `{ "userId": "string" }`
+- Returns: `{ "sessionId": "uuid" }`
 
-```json
-{
-  "type": "variable-state",
-  "variables": [
-    {
-      "name": "a",
-      "value": "10"
-    },
-    {
-      "name": "b",
-      "value": "20"
-    }
-  ]
-}
-```
+### Join session
+- **POST** `/session/join`
+- Body: `{ "sessionId": "string", "userId": "check" }`
+- Returns session details or `404` if the session is not found
 
 ---
 
-# Commands
+## WebSocket message flow
 
-| Command | Description |
-|---|---|
-| Connect Session | Connects extension to collaboration server |
-| Share Breakpoints | Synchronizes breakpoint events |
-| Capture Variables | Sends variable state on debugger pause |
+Once connected, the extension receives server messages and updates the editor decorations.
 
----
+### Remote breakpoint rendering
 
-# Screenshots
+When a remote user hits/broadcasts a breakpoint event, the extension handles messages like:
 
-## Breakpoint Synchronization
+- `BREAKPOINT_HIT`
+  - Adds a remote breakpoint decoration in the editor gutter for the given `file` + `line`
 
-Add screenshot here:
+- `BREAKPOINT_REMOVED`
+  - Removes the decoration for the given `file` + `line`
 
-```md
-![Breakpoint Sync](./screenshots/breakpoint-sync.png)
-```
+It also includes legacy compatibility for messages shaped like:
 
----
+- `type: 'breakpoint', action: 'add'`
+- `type: 'breakpoint', action: 'remove'`
 
-## Variable State Capture
+### Keepalive
 
-Add screenshot here:
-
-```md
-![Variable Capture](./screenshots/variable-capture.png)
-```
+On WebSocket open, the extension sends a `ping` message with `userId`/`userName`.
 
 ---
 
-# WebSocket Events
+## Supported languages / file types
 
-## Breakpoint Add
-
-```json
-{
-  "type": "breakpoint",
-  "action": "add"
-}
-```
-
-## Breakpoint Remove
-
-```json
-{
-  "type": "breakpoint",
-  "action": "remove"
-}
-```
-
-## Variable State
-
-```json
-{
-  "type": "variable-state"
-}
-```
+The extension does not hard-code language runtimes. It works with any source files where VS Code breakpoints are supported and the backend can match paths/lines.
 
 ---
 
-# Future Improvements
+## Screenshots
 
-- Live breakpoint rendering for all users
-- Shared call stack visualization
-- Real-time console synchronization
-- Remote session joining
-- Authentication support
-- Session persistence
-
----
-
-# Repository
-
-Repository URL:
-
-```bash
-https://github.com/collab-and-debug/debugger-extension
-```
+- Breakpoint synchronization:
+  - `images/screenshots/breakpoint-sync.png`
+  
+- Variable capture:
+  - `images/screenshots/variable-capture.png`
 
 ---
 
-# Author
+## Troubleshooting
 
-Eashwar Polishetti
+### “Session not found” when joining
+- Verify the **Session ID**.
+- Ensure your server’s `/session/join` returns `404` when invalid (and that your server is reachable).
 
-GitHub:
-```bash
-https://github.com/eashwarpolishetti
-```
+### WebSocket connection fails
+- Confirm the **Server URL** is correct (`ws://` vs `wss://`).
+- Ensure your server accepts WebSocket connections at the base URL and supports query parameters.
+
+### Remote breakpoints don’t appear
+- Confirm both users are using compatible server+client versions.
+- Ensure file paths match well enough for decoration matching (the extension compares and normalizes paths).
 
 ---
 
-# License
+## Project structure
 
-MIT License
+Key files:
+
+- `src/extension.ts`
+  - Implements commands (start/join/stop)
+  - Sends breakpoint add/remove events on breakpoint changes
+
+- `src/wsClient.ts`
+  - WebSocket connection + message handling
+
+- `src/decorationManager.ts`
+  - Creates/removes decorations for remote breakpoints
 
 ---
 
-# Release
+## License
 
-Current Version:
-```bash
-v1.0
-```
+MIT
 
-VSIX package available in GitHub Releases.
